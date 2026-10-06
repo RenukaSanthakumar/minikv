@@ -1,14 +1,17 @@
 package com.renuka.minikv;
 
+import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
 public class MiniKV implements KeyValueStore {
 
     private final Map<String, String> store;
+    private final String fileName = "minikv.data";
 
     public MiniKV() {
         store = new HashMap<>();
+        loadFromFile();
     }
 
     private void validateKey(String key) {
@@ -26,6 +29,7 @@ public class MiniKV implements KeyValueStore {
         }
 
         store.put(key, value);
+        saveToFile();
     }
 
     @Override
@@ -37,7 +41,9 @@ public class MiniKV implements KeyValueStore {
     @Override
     public void delete(String key) {
         validateKey(key);
+
         store.remove(key);
+        saveToFile();
     }
 
     @Override
@@ -49,5 +55,43 @@ public class MiniKV implements KeyValueStore {
     @Override
     public int size() {
         return store.size();
+    }
+
+    private void saveToFile() {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
+
+            for (Map.Entry<String, String> entry : store.entrySet()) {
+                writer.write(entry.getKey() + "=" + entry.getValue());
+                writer.newLine();
+            }
+
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to save data", e);
+        }
+    }
+
+    private void loadFromFile() {
+        File file = new File(fileName);
+
+        if (!file.exists()) {
+            return;
+        }
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+
+            String line;
+
+            while ((line = reader.readLine()) != null) {
+
+                String[] parts = line.split("=", 2);
+
+                if (parts.length == 2) {
+                    store.put(parts[0], parts[1]);
+                }
+            }
+
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load data", e);
+        }
     }
 }
