@@ -4,7 +4,23 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
+import java.io.File;
+
 public class MiniKVTest {
+
+    @BeforeEach
+void cleanUpBeforeTest() {
+    new File("minikv.data").delete();
+    new File("minikv.wal").delete();
+}
+
+@AfterEach
+void cleanUpAfterTest() {
+    new File("minikv.data").delete();
+    new File("minikv.wal").delete();
+}
 
     @Test
     void testPutAndGet() {
@@ -88,4 +104,40 @@ public class MiniKVTest {
                 () -> kv.put("name", null)
         );
     }
+    
+    @Test
+void testConcurrentPut() throws InterruptedException {
+
+    MiniKV kv = new MiniKV();
+
+    int numberOfThreads = 10;
+    int entriesPerThread = 100;
+
+    Thread[] threads = new Thread[numberOfThreads];
+
+    for (int i = 0; i < numberOfThreads; i++) {
+
+        final int threadNumber = i;
+
+        threads[i] = new Thread(() -> {
+
+            for (int j = 0; j < entriesPerThread; j++) {
+
+                String key = "thread" + threadNumber + "-key" + j;
+                kv.put(key, "value");
+            }
+        });
+
+        threads[i].start();
+    }
+
+    for (Thread thread : threads) {
+        thread.join();
+    }
+
+    assertEquals(
+            numberOfThreads * entriesPerThread,
+            kv.size()
+    );
+}
 }

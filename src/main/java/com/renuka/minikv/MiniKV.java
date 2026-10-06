@@ -1,8 +1,8 @@
 package com.renuka.minikv;
 
 import java.io.*;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class MiniKV implements KeyValueStore {
 
@@ -11,7 +11,7 @@ public class MiniKV implements KeyValueStore {
     private final WriteAheadLog wal;
 
     public MiniKV() {
-        store = new HashMap<>();
+        store = new ConcurrentHashMap<>();
         wal = new WriteAheadLog();
         loadFromFile();
     }
@@ -23,20 +23,15 @@ public class MiniKV implements KeyValueStore {
     }
 
     @Override
-    public void put(String key, String value) {
+    public synchronized void put(String key, String value) {
         validateKey(key);
 
         if (value == null) {
             throw new IllegalArgumentException("Value cannot be null");
         }
 
-        // First record the operation in WAL
         wal.log("PUT", key, value);
-
-        // Then update memory
         store.put(key, value);
-
-        // Finally save to data file
         saveToFile();
     }
 
@@ -47,16 +42,11 @@ public class MiniKV implements KeyValueStore {
     }
 
     @Override
-    public void delete(String key) {
+    public synchronized void delete(String key) {
         validateKey(key);
 
-        // Record delete operation in WAL
         wal.log("DELETE", key, "");
-
-        // Remove from memory
         store.remove(key);
-
-        // Save updated data
         saveToFile();
     }
 
@@ -77,13 +67,11 @@ public class MiniKV implements KeyValueStore {
                      new BufferedWriter(new FileWriter(fileName))) {
 
             for (Map.Entry<String, String> entry : store.entrySet()) {
-
                 writer.write(entry.getKey() + "=" + entry.getValue());
                 writer.newLine();
             }
 
         } catch (IOException e) {
-
             throw new RuntimeException("Failed to save data", e);
         }
     }
@@ -111,7 +99,6 @@ public class MiniKV implements KeyValueStore {
             }
 
         } catch (IOException e) {
-
             throw new RuntimeException("Failed to load data", e);
         }
     }
