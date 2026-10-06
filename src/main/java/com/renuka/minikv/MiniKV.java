@@ -8,9 +8,11 @@ public class MiniKV implements KeyValueStore {
 
     private final Map<String, String> store;
     private final String fileName = "minikv.data";
+    private final WriteAheadLog wal;
 
     public MiniKV() {
         store = new HashMap<>();
+        wal = new WriteAheadLog();
         loadFromFile();
     }
 
@@ -28,7 +30,13 @@ public class MiniKV implements KeyValueStore {
             throw new IllegalArgumentException("Value cannot be null");
         }
 
+        // First record the operation in WAL
+        wal.log("PUT", key, value);
+
+        // Then update memory
         store.put(key, value);
+
+        // Finally save to data file
         saveToFile();
     }
 
@@ -42,7 +50,13 @@ public class MiniKV implements KeyValueStore {
     public void delete(String key) {
         validateKey(key);
 
+        // Record delete operation in WAL
+        wal.log("DELETE", key, "");
+
+        // Remove from memory
         store.remove(key);
+
+        // Save updated data
         saveToFile();
     }
 
@@ -58,26 +72,32 @@ public class MiniKV implements KeyValueStore {
     }
 
     private void saveToFile() {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
+
+        try (BufferedWriter writer =
+                     new BufferedWriter(new FileWriter(fileName))) {
 
             for (Map.Entry<String, String> entry : store.entrySet()) {
+
                 writer.write(entry.getKey() + "=" + entry.getValue());
                 writer.newLine();
             }
 
         } catch (IOException e) {
+
             throw new RuntimeException("Failed to save data", e);
         }
     }
 
     private void loadFromFile() {
+
         File file = new File(fileName);
 
         if (!file.exists()) {
             return;
         }
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+        try (BufferedReader reader =
+                     new BufferedReader(new FileReader(file))) {
 
             String line;
 
@@ -91,6 +111,7 @@ public class MiniKV implements KeyValueStore {
             }
 
         } catch (IOException e) {
+
             throw new RuntimeException("Failed to load data", e);
         }
     }
