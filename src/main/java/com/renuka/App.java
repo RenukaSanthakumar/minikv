@@ -1,12 +1,13 @@
 package com.renuka;
 
+import com.renuka.minikv.KeyValueStore;
 import com.renuka.minikv.MiniKV;
 
 public class App {
 
     public static void main(String[] args) {
 
-        MiniKV kv = new MiniKV();
+        KeyValueStore kv = new MiniKV();
 
         kv.put("name", "Renu");
         kv.put("age", "20");

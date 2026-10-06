@@ -3,7 +3,7 @@ package com.renuka.minikv;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MiniKV {
+public class MiniKV implements KeyValueStore {
 
     private final Map<String, String> store;
 
