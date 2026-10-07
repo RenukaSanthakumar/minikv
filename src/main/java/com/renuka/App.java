@@ -1,7 +1,9 @@
 package com.renuka;
 
 import com.renuka.minikv.KeyValueStore;
+import com.renuka.minikv.LRUCache;
 import com.renuka.minikv.MiniKV;
+import com.renuka.minikv.LRUCache;
 
 public class App {
 
@@ -53,5 +55,25 @@ public class App {
 
         // 7. Final size
         System.out.println("Final size: " + kv.size());
+
+        // LRU Cache demonstration
+
+LRUCache cache = new LRUCache(3);
+
+cache.put("A", "Apple");
+cache.put("B", "Banana");
+cache.put("C", "Cherry");
+
+System.out.println("Cache: " + cache);
+
+// Access A → A becomes most recently used
+cache.get("A");
+
+System.out.println("After accessing A: " + cache);
+
+// Add D → B should be removed
+cache.put("D", "Durian");
+
+System.out.println("After adding D: " + cache);
     }
 }
