@@ -1,6 +1,2 @@
 PUT|name|Renu
-PUT|name|Renuka
-PUT|age|20
-DELETE|age|
-PUT_TTL|OTP|583921|1791339543700
-DELETE|OTP|
+DELETE|name|
