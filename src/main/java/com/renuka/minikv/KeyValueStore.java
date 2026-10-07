@@ -11,4 +11,6 @@ public interface KeyValueStore {
     boolean containsKey(String key);
 
     int size();
+
+    void put(String key, String value, long ttlSeconds);
 }
