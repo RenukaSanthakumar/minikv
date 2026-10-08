@@ -3,3 +3,5 @@ target/
 .vscode/
 .idea/
 *.iml
+minikv.data
+minikv.wal
