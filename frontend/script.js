@@ -1,11 +1,15 @@
 const API_URL = "http://localhost:8080/kv";
 
 
-// PUT
+// ==================== PUT ====================
+
 async function putValue() {
 
-    const key = document.getElementById("key").value;
-    const value = document.getElementById("value").value;
+    const keyInput = document.getElementById("key");
+    const valueInput = document.getElementById("value");
+
+    const key = keyInput.value.trim();
+    const value = valueInput.value.trim();
 
     if (!key || !value) {
         alert("Please enter both key and value.");
@@ -14,7 +18,7 @@ async function putValue() {
 
     try {
 
-        const response = await fetch(`${API_URL}/${key}`, {
+        const response = await fetch(`${API_URL}/${encodeURIComponent(key)}`, {
             method: "PUT",
             headers: {
                 "Content-Type": "text/plain"
@@ -22,9 +26,21 @@ async function putValue() {
             body: value
         });
 
-        const result = await response.text();
+        if (!response.ok) {
+            throw new Error("PUT request failed");
+        }
 
-        alert("Value stored successfully: " + result);
+        alert("Value stored successfully.");
+
+        // Clear inputs
+        keyInput.value = "";
+        valueInput.value = "";
+
+        // Move cursor back to Key
+        keyInput.focus();
+
+        // Update total keys
+        getSize();
 
     } catch (error) {
 
@@ -34,10 +50,13 @@ async function putValue() {
 }
 
 
-// GET
+// ==================== GET ====================
+
 async function getValue() {
 
-    const key = document.getElementById("getKey").value;
+    const keyInput = document.getElementById("getKey");
+
+    const key = keyInput.value.trim();
 
     if (!key) {
         alert("Please enter a key.");
@@ -46,7 +65,13 @@ async function getValue() {
 
     try {
 
-        const response = await fetch(`${API_URL}/${key}`);
+        const response = await fetch(
+            `${API_URL}/${encodeURIComponent(key)}`
+        );
+
+        if (!response.ok) {
+            throw new Error("GET request failed");
+        }
 
         const result = await response.text();
 
@@ -62,10 +87,13 @@ async function getValue() {
 }
 
 
-// DELETE
+// ==================== DELETE ====================
+
 async function deleteValue() {
 
-    const key = document.getElementById("deleteKey").value;
+    const keyInput = document.getElementById("deleteKey");
+
+    const key = keyInput.value.trim();
 
     if (!key) {
         alert("Please enter a key.");
@@ -74,15 +102,29 @@ async function deleteValue() {
 
     try {
 
-        const response = await fetch(`${API_URL}/${key}`, {
-            method: "DELETE"
-        });
+        const response = await fetch(
+            `${API_URL}/${encodeURIComponent(key)}`,
+            {
+                method: "DELETE"
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error("DELETE request failed");
+        }
 
         const result = await response.text();
 
         document.getElementById("deleteResult").textContent =
             "Result: " + result;
 
+        keyInput.value = "";
+
+        keyInput.focus();
+
+        // Update total keys
+        getSize();
+
     } catch (error) {
 
         document.getElementById("deleteResult").textContent =
@@ -92,22 +134,79 @@ async function deleteValue() {
 }
 
 
-// SIZE
+// ==================== SIZE ====================
+
 async function getSize() {
 
     try {
 
         const response = await fetch(API_URL);
 
+        if (!response.ok) {
+            throw new Error("SIZE request failed");
+        }
+
         const result = await response.text();
 
-        document.getElementById("sizeResult").textContent =
-            "Current size: " + result;
+        document.getElementById("sizeResult").textContent = result;
 
     } catch (error) {
 
-        document.getElementById("sizeResult").textContent =
-            "Could not connect to MiniKV server.";
+        document.getElementById("sizeResult").textContent = "0";
 
     }
 }
+
+
+// ==================== ENTER KEY ====================
+
+// Store: Key → Enter → Value
+document.getElementById("key").addEventListener("keydown", function(event) {
+
+    if (event.key === "Enter") {
+
+        event.preventDefault();
+
+        document.getElementById("value").focus();
+    }
+});
+
+
+// Store: Value → Enter → PUT
+document.getElementById("value").addEventListener("keydown", function(event) {
+
+    if (event.key === "Enter") {
+
+        event.preventDefault();
+
+        putValue();
+    }
+});
+
+
+// Get: Enter → GET
+document.getElementById("getKey").addEventListener("keydown", function(event) {
+
+    if (event.key === "Enter") {
+
+        event.preventDefault();
+
+        getValue();
+    }
+});
+
+
+// Delete: Enter → DELETE
+document.getElementById("deleteKey").addEventListener("keydown", function(event) {
+
+    if (event.key === "Enter") {
+
+        event.preventDefault();
+
+        deleteValue();
+    }
+});
+
+
+// Load current size when page opens
+getSize();
