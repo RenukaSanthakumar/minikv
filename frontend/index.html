@@ -5,95 +5,221 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>MiniKV - Key Value Store</title>
+    <title>MiniKV | Key-Value Store</title>
 
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-    <div class="container">
+    <div class="app">
 
-        <h1>MiniKV</h1>
-        <p class="subtitle">Simple Java Key-Value Store</p>
+        <!-- Sidebar -->
+        <aside class="sidebar">
 
-        <div class="card">
+            <div class="logo">
+                <div class="logo-icon">K</div>
+                <div>
+                    <h2>MiniKV</h2>
+                    <span>Key-Value Store</span>
+                </div>
+            </div>
 
-            <h2>Store a Value</h2>
+            <nav>
+                <a href="#" class="active">Dashboard</a>
+                <a href="#store">Store Data</a>
+                <a href="#retrieve">Retrieve Data</a>
+                <a href="#delete">Delete Data</a>
+            </nav>
 
-            <input
-                type="text"
-                id="key"
-                placeholder="Enter key"
-            >
+            <div class="sidebar-bottom">
+                <div class="server-status">
+                    <span class="status-dot"></span>
+                    <div>
+                        <strong>Server Online</strong>
+                        <small>localhost:8080</small>
+                    </div>
+                </div>
+            </div>
 
-            <input
-                type="text"
-                id="value"
-                placeholder="Enter value"
-            >
-
-            <button onclick="putValue()">
-                PUT
-            </button>
-
-        </div>
-
-
-        <div class="card">
-
-            <h2>Get a Value</h2>
-
-            <input
-                type="text"
-                id="getKey"
-                placeholder="Enter key"
-            >
-
-            <button onclick="getValue()">
-                GET
-            </button>
-
-            <p id="getResult"></p>
-
-        </div>
+        </aside>
 
 
-        <div class="card">
+        <!-- Main Content -->
+        <main class="main">
 
-            <h2>Delete a Value</h2>
+            <header class="topbar">
+                <div>
+                    <h1>Dashboard</h1>
+                    <p>Manage your MiniKV data store</p>
+                </div>
 
-            <input
-                type="text"
-                id="deleteKey"
-                placeholder="Enter key"
-            >
-
-            <button onclick="deleteValue()">
-                DELETE
-            </button>
-
-            <p id="deleteResult"></p>
-
-        </div>
+                <div class="api-badge">
+                    <span></span>
+                    REST API
+                </div>
+            </header>
 
 
-        <div class="card">
+            <!-- Statistics -->
+            <section class="stats">
 
-            <h2>Store Information</h2>
+                <div class="stat-card">
+                    <div class="stat-icon purple">#</div>
+                    <div>
+                        <span>Total Keys</span>
+                        <strong id="sizeResult">0</strong>
+                    </div>
+                </div>
 
-            <button onclick="getSize()">
-                CHECK SIZE
-            </button>
+                <div class="stat-card">
+                    <div class="stat-icon blue">⚡</div>
+                    <div>
+                        <span>Storage</span>
+                        <strong>Active</strong>
+                    </div>
+                </div>
 
-            <p id="sizeResult"></p>
+                <div class="stat-card">
+                    <div class="stat-icon green">✓</div>
+                    <div>
+                        <span>Backend</span>
+                        <strong>Connected</strong>
+                    </div>
+                </div>
 
-        </div>
+            </section>
+
+
+            <!-- Store -->
+            <section class="panel" id="store">
+
+                <div class="panel-heading">
+                    <div>
+                        <h2>Store a Value</h2>
+                        <p>Add or update a key-value pair in MiniKV.</p>
+                    </div>
+
+                    <span class="method put">PUT</span>
+                </div>
+
+                <div class="form-grid">
+
+                    <div class="input-group">
+                        <label for="key">Key</label>
+                        <input
+                            type="text"
+                            id="key"
+                            placeholder="e.g. username"
+                        >
+                    </div>
+
+                    <div class="input-group">
+                        <label for="value">Value</label>
+                        <input
+                            type="text"
+                            id="value"
+                            placeholder="e.g. Renuka"
+                        >
+                    </div>
+
+                </div>
+
+                <button class="primary-btn" onclick="putValue()">
+                    Store Value
+                </button>
+
+            </section>
+
+
+            <!-- Retrieve -->
+            <section class="panel" id="retrieve">
+
+                <div class="panel-heading">
+                    <div>
+                        <h2>Retrieve a Value</h2>
+                        <p>Find a value using its key.</p>
+                    </div>
+
+                    <span class="method get">GET</span>
+                </div>
+
+                <div class="single-form">
+
+                    <div class="input-group">
+                        <label for="getKey">Key</label>
+                        <input
+                            type="text"
+                            id="getKey"
+                            placeholder="Enter a key"
+                        >
+                    </div>
+
+                    <button class="secondary-btn" onclick="getValue()">
+                        Get Value
+                    </button>
+
+                </div>
+
+                <div class="result-box">
+                    <span>Result</span>
+                    <p id="getResult">No value requested yet.</p>
+                </div>
+
+            </section>
+
+
+            <!-- Delete -->
+            <section class="panel" id="delete">
+
+                <div class="panel-heading">
+                    <div>
+                        <h2>Delete a Value</h2>
+                        <p>Remove a key and its associated value.</p>
+                    </div>
+
+                    <span class="method delete">DELETE</span>
+                </div>
+
+                <div class="single-form">
+
+                    <div class="input-group">
+                        <label for="deleteKey">Key</label>
+                        <input
+                            type="text"
+                            id="deleteKey"
+                            placeholder="Enter a key"
+                        >
+                    </div>
+
+                    <button class="danger-btn" onclick="deleteValue()">
+                        Delete Value
+                    </button>
+
+                </div>
+
+                <div class="result-box">
+                    <span>Result</span>
+                    <p id="deleteResult">No deletion performed yet.</p>
+                </div>
+
+            </section>
+
+
+            <!-- Footer -->
+            <footer>
+                <span>MiniKV</span>
+                <span>Java + Spring Boot + REST API</span>
+            </footer>
+
+        </main>
 
     </div>
+
 
     <script src="script.js"></script>
 
 </body>
 
 </html>
+
