@@ -115,6 +115,16 @@ public class MiniKV implements KeyValueStore {
         return store.size();
     }
 
+    @Override
+    public Map<String, String> getAll() {
+        for (String key : store.keySet()) {
+            if (isExpired(key)) {
+                removeExpiredKey(key);
+            }
+        }
+        return new ConcurrentHashMap<>(store);
+    }
+
     private boolean isExpired(String key) {
         Long expirationTime = expirationTimes.get(key);
 

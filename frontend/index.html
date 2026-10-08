@@ -168,6 +168,25 @@
 
             </section>
 
+            <!-- View All -->
+            <section class="panel" id="viewAll">
+                <div class="panel-heading">
+                    <div>
+                        <h2>View All Data</h2>
+                        <p>Display all key-value pairs currently stored in MiniKV.</p>
+                    </div>
+                    <span class="method get">GET</span>
+                </div>
+                <button class="secondary-btn" onclick="getAllValues()">
+                    View All Data
+                </button>
+
+                 <div class="result-box">
+                    <span>Stored Data</span>
+                    <pre id="allResult">No data requested yet.</pre>
+                </div>
+            </section>
+
 
             <!-- Delete -->
             <section class="panel" id="delete">

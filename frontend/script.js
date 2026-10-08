@@ -195,6 +195,30 @@ document.getElementById("getKey").addEventListener("keydown", function(event) {
     }
 });
 
+// ==================== VIEW ALL ====================
+
+async function getAllValues() {
+
+    try {
+
+        const response = await fetch(`${API_URL}/all`);
+
+        if (!response.ok) {
+            throw new Error("GET ALL request failed");
+        }
+
+        const result = await response.json();
+
+        document.getElementById("allResult").textContent =
+            JSON.stringify(result, null, 2);
+
+    } catch (error) {
+
+        document.getElementById("allResult").textContent =
+            "Could not connect to MiniKV server.";
+
+    }
+}
 
 // Delete: Enter → DELETE
 document.getElementById("deleteKey").addEventListener("keydown", function(event) {

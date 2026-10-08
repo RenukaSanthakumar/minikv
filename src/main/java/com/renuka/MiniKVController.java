@@ -2,6 +2,9 @@ package com.renuka;
 
 import com.renuka.minikv.KeyValueStore;
 import com.renuka.minikv.MiniKV;
+
+import java.util.Map;
+
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -28,6 +31,12 @@ public class MiniKVController {
         String value = kv.get(key);
 
         return value != null ? value : "null";
+    }
+
+    @GetMapping("/all")
+    public Map<String, String> getAll() {
+        
+        return kv.getAll();
     }
 
     // DELETE /kv/name
