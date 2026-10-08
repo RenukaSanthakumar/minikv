@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>MiniKV - Key Value Store</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>MiniKV</h1>
+        <p class="subtitle">Simple Java Key-Value Store</p>
+
+        <div class="card">
+
+            <h2>Store a Value</h2>
+
+            <input
+                type="text"
+                id="key"
+                placeholder="Enter key"
+            >
+
+            <input
+                type="text"
+                id="value"
+                placeholder="Enter value"
+            >
+
+            <button onclick="putValue()">
+                PUT
+            </button>
+
+        </div>
+
+
+        <div class="card">
+
+            <h2>Get a Value</h2>
+
+            <input
+                type="text"
+                id="getKey"
+                placeholder="Enter key"
+            >
+
+            <button onclick="getValue()">
+                GET
+            </button>
+
+            <p id="getResult"></p>
+
+        </div>
+
+
+        <div class="card">
+
+            <h2>Delete a Value</h2>
+
+            <input
+                type="text"
+                id="deleteKey"
+                placeholder="Enter key"
+            >
+
+            <button onclick="deleteValue()">
+                DELETE
+            </button>
+
+            <p id="deleteResult"></p>
+
+        </div>
+
+
+        <div class="card">
+
+            <h2>Store Information</h2>
+
+            <button onclick="getSize()">
+                CHECK SIZE
+            </button>
+
+            <p id="sizeResult"></p>
+
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>

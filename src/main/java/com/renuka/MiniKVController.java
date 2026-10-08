@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/kv")
+@CrossOrigin(origins = "*")
 public class MiniKVController {
 
     private final KeyValueStore kv = new MiniKV();
