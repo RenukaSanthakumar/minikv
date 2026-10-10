@@ -1,244 +1,208 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>MiniKV | Key-Value Store</title>
-
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
+<div class="app">
 
-    <div class="app">
+    <aside class="sidebar">
+        <div class="logo">
+            <div class="logo-icon">K</div>
+            <div>
+                <h2>MiniKV</h2>
+                <span>Key-Value Store</span>
+            </div>
+        </div>
 
-        <!-- Sidebar -->
-        <aside class="sidebar">
+        <nav>
+            <a href="#dashboard" class="active">Dashboard</a>
+            <a href="#store">Store Data</a>
+            <a href="#retrieve">Retrieve Data</a>
+            <a href="#delete">Delete Data</a>
+            <a href="#count">Count Keys</a>
+            <a href="#viewAll">View All Data</a>
+        </nav>
 
-            <div class="logo">
-                <div class="logo-icon">K</div>
+        <div class="sidebar-bottom">
+            <div class="server-status">
+                <span class="status-dot checking" id="sidebarDot"></span>
                 <div>
-                    <h2>MiniKV</h2>
-                    <span>Key-Value Store</span>
+                    <strong id="serverStatus">Checking server...</strong>
+                    <small>localhost:8080</small>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main" id="dashboard">
+        <header class="topbar">
+            <div>
+                <h1>Dashboard</h1>
+                <p>Manage and monitor your MiniKV data store.</p>
+            </div>
+
+            <div class="api-badge checking" id="apiBadge">
+                <span class="status-dot checking" id="apiDot"></span>
+                <span id="apiStatus">Checking API...</span>
+            </div>
+        </header>
+
+        <section class="stats">
+            <div class="stat-card">
+                <div class="stat-icon purple">#</div>
+                <div>
+                    <span>Total Keys</span>
+                    <strong id="sizeResult">—</strong>
                 </div>
             </div>
 
-            <nav>
-                <a href="#" class="active">Dashboard</a>
-                <a href="#store">Store Data</a>
-                <a href="#retrieve">Retrieve Data</a>
-                <a href="#delete">Delete Data</a>
-            </nav>
-
-            <div class="sidebar-bottom">
-                <div class="server-status">
-                    <span class="status-dot"></span>
-                    <div>
-                        <strong>Server Online</strong>
-                        <small>localhost:8080</small>
-                    </div>
+            <div class="stat-card">
+                <div class="stat-icon blue">⚡</div>
+                <div>
+                    <span>Storage</span>
+                    <strong>MiniKV</strong>
                 </div>
             </div>
 
-        </aside>
-
-
-        <!-- Main Content -->
-        <main class="main">
-
-            <header class="topbar">
+            <div class="stat-card">
+                <div class="stat-icon green">●</div>
                 <div>
-                    <h1>Dashboard</h1>
-                    <p>Manage your MiniKV data store</p>
+                    <span>Backend</span>
+                    <strong id="backendStatus">Checking...</strong>
                 </div>
+            </div>
+        </section>
 
-                <div class="api-badge">
-                    <span></span>
-                    REST API
+        <section class="panel" id="store">
+            <div class="panel-heading">
+                <div>
+                    <h2>Store a Value</h2>
+                    <p>Add a new key or update an existing key.</p>
                 </div>
-            </header>
+                <span class="method put">PUT</span>
+            </div>
 
-
-            <!-- Statistics -->
-            <section class="stats">
-
-                <div class="stat-card">
-                    <div class="stat-icon purple">#</div>
-                    <div>
-                        <span>Total Keys</span>
-                        <strong id="sizeResult">0</strong>
-                    </div>
+            <div class="form-grid">
+                <div class="input-group">
+                    <label for="key">Key</label>
+                    <input id="key" type="text" placeholder="e.g. username"
+                           autocomplete="off">
                 </div>
-
-                <div class="stat-card">
-                    <div class="stat-icon blue">⚡</div>
-                    <div>
-                        <span>Storage</span>
-                        <strong>Active</strong>
-                    </div>
+                <div class="input-group">
+                    <label for="value">Value</label>
+                    <input id="value" type="text" placeholder="e.g. Renuka"
+                           autocomplete="off">
                 </div>
+            </div>
 
-                <div class="stat-card">
-                    <div class="stat-icon green">✓</div>
-                    <div>
-                        <span>Backend</span>
-                        <strong>Connected</strong>
-                    </div>
+            <button class="primary-btn" id="putButton" type="button">
+                Store Value
+            </button>
+            <p class="feedback" id="putResult" aria-live="polite"></p>
+        </section>
+
+        <section class="panel" id="retrieve">
+            <div class="panel-heading">
+                <div>
+                    <h2>Retrieve a Value</h2>
+                    <p>Find a stored value using its key.</p>
                 </div>
+                <span class="method get">GET</span>
+            </div>
 
-            </section>
-
-
-            <!-- Store -->
-            <section class="panel" id="store">
-
-                <div class="panel-heading">
-                    <div>
-                        <h2>Store a Value</h2>
-                        <p>Add or update a key-value pair in MiniKV.</p>
-                    </div>
-
-                    <span class="method put">PUT</span>
+            <div class="single-form">
+                <div class="input-group">
+                    <label for="getKey">Key</label>
+                    <input id="getKey" type="text" placeholder="Enter a key"
+                           autocomplete="off">
                 </div>
-
-                <div class="form-grid">
-
-                    <div class="input-group">
-                        <label for="key">Key</label>
-                        <input
-                            type="text"
-                            id="key"
-                            placeholder="e.g. username"
-                        >
-                    </div>
-
-                    <div class="input-group">
-                        <label for="value">Value</label>
-                        <input
-                            type="text"
-                            id="value"
-                            placeholder="e.g. Renuka"
-                        >
-                    </div>
-
-                </div>
-
-                <button class="primary-btn" onclick="putValue()">
-                    Store Value
+                <button class="secondary-btn" id="getButton" type="button">
+                    Get Value
                 </button>
+            </div>
 
-            </section>
+            <div class="result-box">
+                <span>Result</span>
+                <p id="getResult" aria-live="polite">No value requested yet.</p>
+            </div>
+        </section>
 
-
-            <!-- Retrieve -->
-            <section class="panel" id="retrieve">
-
-                <div class="panel-heading">
-                    <div>
-                        <h2>Retrieve a Value</h2>
-                        <p>Find a value using its key.</p>
-                    </div>
-
-                    <span class="method get">GET</span>
+        <section class="panel" id="delete">
+            <div class="panel-heading">
+                <div>
+                    <h2>Delete a Value</h2>
+                    <p>Remove a key and its associated value.</p>
                 </div>
+                <span class="method delete">DELETE</span>
+            </div>
 
-                <div class="single-form">
-
-                    <div class="input-group">
-                        <label for="getKey">Key</label>
-                        <input
-                            type="text"
-                            id="getKey"
-                            placeholder="Enter a key"
-                        >
-                    </div>
-
-                    <button class="secondary-btn" onclick="getValue()">
-                        Get Value
-                    </button>
-
+            <div class="single-form">
+                <div class="input-group">
+                    <label for="deleteKey">Key</label>
+                    <input id="deleteKey" type="text" placeholder="Enter a key"
+                           autocomplete="off">
                 </div>
-
-                <div class="result-box">
-                    <span>Result</span>
-                    <p id="getResult">No value requested yet.</p>
-                </div>
-
-            </section>
-
-            <!-- View All -->
-            <section class="panel" id="viewAll">
-                <div class="panel-heading">
-                    <div>
-                        <h2>View All Data</h2>
-                        <p>Display all key-value pairs currently stored in MiniKV.</p>
-                    </div>
-                    <span class="method get">GET</span>
-                </div>
-                <button class="secondary-btn" onclick="getAllValues()">
-                    View All Data
+                <button class="danger-btn" id="deleteButton" type="button">
+                    Delete Value
                 </button>
+            </div>
 
-                 <div class="result-box">
-                    <span>Stored Data</span>
-                    <pre id="allResult">No data requested yet.</pre>
+            <div class="result-box">
+                <span>Result</span>
+                <p id="deleteResult" aria-live="polite">
+                    No deletion performed yet.
+                </p>
+            </div>
+        </section>
+
+        <section class="panel" id="count">
+            <div class="panel-heading">
+                <div>
+                    <h2>Count Keys</h2>
+                    <p>Check how many keys are currently stored.</p>
                 </div>
-            </section>
+                <span class="method get">GET</span>
+            </div>
 
+            <button class="secondary-btn" id="countButton" type="button">
+                Check Total Keys
+            </button>
+            <div class="result-box">
+                <span>Total keys</span>
+                <p id="countResult" aria-live="polite">Not checked yet.</p>
+            </div>
+        </section>
 
-            <!-- Delete -->
-            <section class="panel" id="delete">
-
-                <div class="panel-heading">
-                    <div>
-                        <h2>Delete a Value</h2>
-                        <p>Remove a key and its associated value.</p>
-                    </div>
-
-                    <span class="method delete">DELETE</span>
+        <section class="panel" id="viewAll">
+            <div class="panel-heading">
+                <div>
+                    <h2>View All Data</h2>
+                    <p>Display every key-value pair in MiniKV.</p>
                 </div>
+                <span class="method get">GET</span>
+            </div>
 
-                <div class="single-form">
+            <button class="secondary-btn" id="allButton" type="button">
+                View All Data
+            </button>
+            <div class="result-box">
+                <span>Stored data</span>
+                <pre id="allResult" aria-live="polite">No data requested yet.</pre>
+            </div>
+        </section>
 
-                    <div class="input-group">
-                        <label for="deleteKey">Key</label>
-                        <input
-                            type="text"
-                            id="deleteKey"
-                            placeholder="Enter a key"
-                        >
-                    </div>
+        <footer>
+            <span>MiniKV</span>
+            <span>Java · Spring Boot · REST API</span>
+        </footer>
+    </main>
+</div>
 
-                    <button class="danger-btn" onclick="deleteValue()">
-                        Delete Value
-                    </button>
-
-                </div>
-
-                <div class="result-box">
-                    <span>Result</span>
-                    <p id="deleteResult">No deletion performed yet.</p>
-                </div>
-
-            </section>
-
-
-            <!-- Footer -->
-            <footer>
-                <span>MiniKV</span>
-                <span>Java + Spring Boot + REST API</span>
-            </footer>
-
-        </main>
-
-    </div>
-
-
-    <script src="script.js"></script>
-
+<script src="script.js"></script>
 </body>
-
 </html>
-

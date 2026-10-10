@@ -1,51 +1,95 @@
 const API_URL = "http://localhost:8080/kv";
 
+const $ = (id) => document.getElementById(id);
+
+
+// ==================== SERVER STATUS ====================
+
+function updateStatus(isOnline) {
+    const state = isOnline ? "online" : "offline";
+    const label = isOnline ? "Server Online" : "Server Offline";
+    const backendLabel = isOnline ? "Connected" : "Disconnected";
+
+    $("serverStatus").textContent = label;
+    $("backendStatus").textContent = backendLabel;
+    $("apiStatus").textContent = isOnline ? "API Online" : "API Offline";
+
+    $("sidebarDot").className = `status-dot ${state}`;
+    $("apiDot").className = `status-dot ${state}`;
+    $("apiBadge").className = `api-badge ${state}`;
+}
+
+async function checkServer() {
+    try {
+        const response = await fetch(API_URL, {
+            method: "GET",
+            cache: "no-store"
+        });
+
+        // A server response means the backend is reachable.
+        updateStatus(true);
+
+        if (response.ok) {
+            const count = await response.text();
+            $("sizeResult").textContent = count.trim();
+        }
+    } catch (error) {
+        updateStatus(false);
+        $("sizeResult").textContent = "—";
+        $("countResult").textContent = "Server unavailable.";
+    }
+}
+
 
 // ==================== PUT ====================
 
 async function putValue() {
-
-    const keyInput = document.getElementById("key");
-    const valueInput = document.getElementById("value");
-
+    const keyInput = $("key");
+    const valueInput = $("value");
     const key = keyInput.value.trim();
-    const value = valueInput.value.trim();
+    const value = valueInput.value;
 
-    if (!key || !value) {
-        alert("Please enter both key and value.");
+    if (!key || !value.trim()) {
+        $("putResult").textContent =
+            "Please enter both a key and a value.";
         return;
     }
 
-    try {
+    $("putButton").disabled = true;
+    $("putResult").textContent = "Storing value...";
 
-        const response = await fetch(`${API_URL}/${encodeURIComponent(key)}`, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "text/plain"
-            },
-            body: value
-        });
+    try {
+        const response = await fetch(
+            `${API_URL}/${encodeURIComponent(key)}`,
+            {
+                method: "PUT",
+                headers: { "Content-Type": "text/plain" },
+                body: value
+            }
+        );
+
+        const result = await response.text();
 
         if (!response.ok) {
-            throw new Error("PUT request failed");
+            throw new Error(result || "Store request failed.");
         }
 
-        alert("Value stored successfully.");
+        $("putResult").textContent =
+            `Successfully stored "${key}".`;
 
-        // Clear inputs
         keyInput.value = "";
         valueInput.value = "";
 
-        // Move cursor back to Key
+        await refreshCount();
+        await checkServer();
         keyInput.focus();
 
-        // Update total keys
-        getSize();
-
     } catch (error) {
-
-        alert("Could not connect to MiniKV server.");
-
+        $("putResult").textContent =
+            "Could not store the value. Check that the backend is running.";
+        await checkServer();
+    } finally {
+        $("putButton").disabled = false;
     }
 }
 
@@ -53,36 +97,45 @@ async function putValue() {
 // ==================== GET ====================
 
 async function getValue() {
-
-    const keyInput = document.getElementById("getKey");
-
+    const keyInput = $("getKey");
     const key = keyInput.value.trim();
 
     if (!key) {
-        alert("Please enter a key.");
+        $("getResult").textContent = "Please enter a key.";
+        keyInput.focus();
         return;
     }
 
+    $("getButton").disabled = true;
+    $("getResult").textContent = "Retrieving value...";
+
     try {
-
         const response = await fetch(
-            `${API_URL}/${encodeURIComponent(key)}`
+            `${API_URL}/${encodeURIComponent(key)}`,
+            { cache: "no-store" }
         );
-
-        if (!response.ok) {
-            throw new Error("GET request failed");
-        }
 
         const result = await response.text();
 
-        document.getElementById("getResult").textContent =
-            "Value: " + result;
+        if (!response.ok) {
+            throw new Error("GET request failed.");
+        }
+
+        if (result === "null") {
+            $("getResult").textContent =
+                `No value found for "${key}".`;
+        } else {
+            $("getResult").textContent = `Value: ${result}`;
+        }
+
+        await checkServer();
 
     } catch (error) {
-
-        document.getElementById("getResult").textContent =
-            "Could not connect to MiniKV server.";
-
+        $("getResult").textContent =
+            "Could not retrieve the value. Check the backend connection.";
+        await checkServer();
+    } finally {
+        $("getButton").disabled = false;
     }
 }
 
@@ -90,147 +143,162 @@ async function getValue() {
 // ==================== DELETE ====================
 
 async function deleteValue() {
-
-    const keyInput = document.getElementById("deleteKey");
-
+    const keyInput = $("deleteKey");
     const key = keyInput.value.trim();
 
     if (!key) {
-        alert("Please enter a key.");
+        $("deleteResult").textContent = "Please enter a key.";
+        keyInput.focus();
         return;
     }
 
-    try {
+    $("deleteButton").disabled = true;
+    $("deleteResult").textContent = "Deleting value...";
 
+    try {
         const response = await fetch(
             `${API_URL}/${encodeURIComponent(key)}`,
-            {
-                method: "DELETE"
-            }
+            { method: "DELETE" }
         );
-
-        if (!response.ok) {
-            throw new Error("DELETE request failed");
-        }
 
         const result = await response.text();
 
-        document.getElementById("deleteResult").textContent =
-            "Result: " + result;
+        if (!response.ok) {
+            throw new Error("DELETE request failed.");
+        }
+
+        $("deleteResult").textContent =
+            `Delete request completed: ${result}`;
 
         keyInput.value = "";
 
+        await refreshCount();
+        await checkServer();
         keyInput.focus();
 
-        // Update total keys
-        getSize();
-
     } catch (error) {
-
-        document.getElementById("deleteResult").textContent =
-            "Could not connect to MiniKV server.";
-
+        $("deleteResult").textContent =
+            "Could not delete the value. Check the backend connection.";
+        await checkServer();
+    } finally {
+        $("deleteButton").disabled = false;
     }
 }
 
 
-// ==================== SIZE ====================
+// ==================== COUNT / SIZE ====================
+
+async function refreshCount() {
+    const response = await fetch(API_URL, { cache: "no-store" });
+
+    if (!response.ok) {
+        throw new Error("Could not retrieve key count.");
+    }
+
+    const count = (await response.text()).trim();
+
+    $("sizeResult").textContent = count;
+    $("countResult").textContent = `Total keys: ${count}`;
+
+    return count;
+}
 
 async function getSize() {
+    $("countButton").disabled = true;
+    $("countResult").textContent = "Checking...";
 
     try {
-
-        const response = await fetch(API_URL);
-
-        if (!response.ok) {
-            throw new Error("SIZE request failed");
-        }
-
-        const result = await response.text();
-
-        document.getElementById("sizeResult").textContent = result;
-
+        await refreshCount();
+        await checkServer();
     } catch (error) {
-
-        document.getElementById("sizeResult").textContent = "0";
-
+        $("countResult").textContent =
+            "Could not retrieve the count. Check the backend.";
+        await checkServer();
+    } finally {
+        $("countButton").disabled = false;
     }
 }
 
 
-// ==================== ENTER KEY ====================
+// ==================== VIEW ALL DATA ====================
 
-// Store: Key → Enter → Value
-document.getElementById("key").addEventListener("keydown", function(event) {
+async function getAllValues() {
+    $("allButton").disabled = true;
+    $("allResult").textContent = "Loading stored data...";
 
+    try {
+        const response = await fetch(`${API_URL}/all`, {
+            cache: "no-store"
+        });
+
+        if (!response.ok) {
+            throw new Error("Could not retrieve stored data.");
+        }
+
+        const data = await response.json();
+
+        $("allResult").textContent =
+            Object.keys(data).length === 0
+                ? "No keys are currently stored."
+                : JSON.stringify(data, null, 2);
+
+        await checkServer();
+
+    } catch (error) {
+        $("allResult").textContent =
+            "Could not load data. Check the backend and /kv/all endpoint.";
+        await checkServer();
+    } finally {
+        $("allButton").disabled = false;
+    }
+}
+
+
+// ==================== ENTER KEY SUPPORT ====================
+
+// Store: Key → Enter → Value → Enter → Store
+$("key").addEventListener("keydown", (event) => {
     if (event.key === "Enter") {
-
         event.preventDefault();
-
-        document.getElementById("value").focus();
+        $("value").focus();
     }
 });
 
-
-// Store: Value → Enter → PUT
-document.getElementById("value").addEventListener("keydown", function(event) {
-
+$("value").addEventListener("keydown", (event) => {
     if (event.key === "Enter") {
-
         event.preventDefault();
-
         putValue();
     }
 });
 
-
-// Get: Enter → GET
-document.getElementById("getKey").addEventListener("keydown", function(event) {
-
+// Retrieve: Enter performs GET
+$("getKey").addEventListener("keydown", (event) => {
     if (event.key === "Enter") {
-
         event.preventDefault();
-
         getValue();
     }
 });
 
-// ==================== VIEW ALL ====================
-
-async function getAllValues() {
-
-    try {
-
-        const response = await fetch(`${API_URL}/all`);
-
-        if (!response.ok) {
-            throw new Error("GET ALL request failed");
-        }
-
-        const result = await response.json();
-
-        document.getElementById("allResult").textContent =
-            JSON.stringify(result, null, 2);
-
-    } catch (error) {
-
-        document.getElementById("allResult").textContent =
-            "Could not connect to MiniKV server.";
-
-    }
-}
-
-// Delete: Enter → DELETE
-document.getElementById("deleteKey").addEventListener("keydown", function(event) {
-
+// Delete: Enter performs DELETE
+$("deleteKey").addEventListener("keydown", (event) => {
     if (event.key === "Enter") {
-
         event.preventDefault();
-
         deleteValue();
     }
 });
 
 
-// Load current size when page opens
-getSize();
+// ==================== BUTTON EVENTS ====================
+
+$("putButton").addEventListener("click", putValue);
+$("getButton").addEventListener("click", getValue);
+$("deleteButton").addEventListener("click", deleteValue);
+$("countButton").addEventListener("click", getSize);
+$("allButton").addEventListener("click", getAllValues);
+
+
+// ==================== INITIALIZATION ====================
+
+// Check immediately, then repeat every 5 seconds.
+checkServer();
+setInterval(checkServer, 5000);
